@@ -97,27 +97,9 @@
   section:last-of-type{ border-bottom: none; }
 
   /* ================= SIGNATURE MOTIF: FREQUENCY BARS =================
-     A row of vertical bars whose heights vary, used consistently as:
-     - animated hero backdrop
-     - section divider rule
-     - decorative accent inside the nav
-     - audio player scrubber base
+     Used as: the animated hero backdrop, a decorative accent inside
+     the audio player scrubber, and the static waveform renderer.
      This is the one visual idea the whole site is built around. */
-  .freq-divider{
-    width:100%;
-    height: 28px;
-    display:flex;
-    align-items:center;
-    gap: 3px;
-    overflow:hidden;
-    opacity:.5;
-  }
-  .freq-divider span{
-    flex:1;
-    background: var(--teal);
-    height: 20%;
-    min-height: 2px;
-  }
 
   /* ================= NAV ================= */
   header.site-nav{
@@ -192,15 +174,16 @@
     width:100%; height:100%;
     z-index:0;
     opacity: 0.8;
+    /* Fades the bars out toward the top of the hero, so they stay
+       confined to the lower portion and don't climb up behind the
+       name. Creates visual breathing room between text and motif. */
+    -webkit-mask-image: linear-gradient(to top, black 0%, black 35%, transparent 70%);
+    mask-image: linear-gradient(to top, black 0%, black 35%, transparent 70%);
   }
   .hero-inner{
     position: relative;
     z-index: 1;
     width:100%;
-    display:grid;
-    grid-template-columns: 1.4fr 1fr;
-    gap: 40px;
-    align-items: end;
     padding-bottom: 64px;
   }
   .hero-title{
@@ -218,6 +201,9 @@
     margin-bottom: 28px;
   }
   .hero-ctas{ display:flex; gap:16px; flex-wrap:wrap; }
+  /* Buttons now sit on a solid, opaque surface — keeps the labels
+     legible regardless of how busy the animated backdrop gets
+     underneath them. */
   .btn{
     font-family: var(--f-mono);
     font-size: 13px;
@@ -225,7 +211,7 @@
     padding: 14px 22px;
     border: 1px solid var(--line);
     cursor: pointer;
-    background: none;
+    background: var(--bg);
     color: var(--text);
     transition: border-color .2s, color .2s, background .2s;
     display:inline-flex;
@@ -236,21 +222,56 @@
   .btn-primary:hover{ background: var(--amber); color:var(--bg); }
   .btn-ghost:hover{ border-color: var(--text); }
 
+  /* Hero meta and eyebrow now sit on solid backing panels rather
+     than floating directly over the animated bars, so the small
+     text stays readable no matter what's happening behind it. */
+  .hero .eyebrow{
+    display: inline-block;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    padding: 6px 12px;
+    margin-bottom: 4px;
+  }
+  /* Frosted "readout" panel — keeps the small label/value text
+     legible over the busy backdrop via a soft blur, without the
+     heaviness of a full bordered box. A single accent line on the
+     right echoes the studio-meter motif instead of boxing it in. */
+  /* Positioned in the top-right corner, well clear of where the
+     animated bars are concentrated lower in the hero — so the
+     readout sits in its own quiet space instead of interrupting
+     the motion. */
   .hero-meta{
+    position: absolute;
+    top: 96px;
+    right: 24px;
+    z-index: 2;
     font-family: var(--f-mono);
-    font-size: 13px;
-    color: var(--text-dim);
     text-align: right;
-    border-left: 1px solid var(--line);
-    padding-left: 24px;
-    align-self: stretch;
+    background: rgba(232,217,188,0.62);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-right: 2px solid var(--amber);
+    padding: 6px 22px 6px 0;
     display:flex;
     flex-direction: column;
-    justify-content: flex-end;
-    gap: 6px;
+    gap: 18px;
   }
-  .hero-meta span{ display:block; }
-  .hero-meta .label{ color: var(--teal-bright); }
+  .hero-meta .meta-group{
+    display:flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .hero-meta .label{
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--teal-bright);
+  }
+  .hero-meta .value{
+    font-size: 15px;
+    color: var(--text);
+    letter-spacing: .01em;
+  }
 
   /* ================= SECTION HEADERS ================= */
   .section-head{
@@ -341,7 +362,7 @@
     justify-content: space-between;
     align-items: flex-start;
     gap: 12px;
-    margin-bottom: 6px;
+    margin-bottom: 22px;
   }
   .project-card h3{ font-size: 22px; }
   .project-role{
@@ -352,17 +373,6 @@
     color: var(--amber);
     white-space: nowrap;
     padding-top: 4px;
-  }
-  .project-client{
-    font-family: var(--f-mono);
-    font-size: 12px;
-    color: var(--text-dim);
-    margin-bottom: 12px;
-  }
-  .project-desc{
-    color: var(--text-dim);
-    font-size: 14px;
-    margin-bottom: 20px;
   }
 
   /* ---- custom audio player ---- */
@@ -582,8 +592,8 @@
 
   /* ================= RESPONSIVE ================= */
   @media (max-width: 880px){
-    .hero-inner{ grid-template-columns: 1fr; }
-    .hero-meta{ border-left:none; border-top:1px solid var(--line); padding-left:0; padding-top:16px; text-align:left; flex-direction:row; flex-wrap:wrap; gap:18px; }
+    .hero-meta{ top: 76px; right: 16px; gap: 12px; padding: 4px 14px 4px 0; }
+    .hero-meta .value{ font-size: 13px; }
     .about-grid{ grid-template-columns: 1fr; }
     .about-photo{ max-width: 280px; }
     .skills{ grid-template-columns: 1fr; }
@@ -620,6 +630,16 @@
      TODO: replace tagline, role, and location/availability text below. -->
 <section class="hero" id="top">
   <canvas id="hero-canvas"></canvas>
+  <div class="hero-meta">
+    <div class="meta-group">
+      <span class="label">Based in</span>
+      <span class="value">Genova · Milan · Venice</span>
+    </div>
+    <div class="meta-group">
+      <span class="label">Specialties</span>
+      <span class="value">R&amp;B · Hip-Pop · Pop</span>
+    </div>
+  </div>
   <div class="wrap hero-inner">
     <div>
       <p class="eyebrow">Music Producer — Sound Designer</p>
@@ -629,16 +649,9 @@
         <a href="#contact" class="btn btn-ghost">Contact</a>
       </div>
     </div>
-    <div class="hero-meta">
-      <span class="label">Based in</span>
-      <span>Genova · Milan · Venice</span>
-      <span class="label">Specialties</span>
-      <span>R&amp;B · Hip-Pop · Pop</span>
-    </div>
   </div>
 </section>
 
-<div class="wrap"><div class="freq-divider" id="divider-1"></div></div>
 
 <!-- ================= ABOUT =================
      TODO: replace bio paragraphs, photo placeholder, and skill tags. -->
@@ -701,8 +714,6 @@
           <h3>PIANO Hip-hop/Lo-Fi/Trap type beat</h3>
           <span class="project-role">Production</span>
         </div>
-        <p class="project-client">[Client / context — e.g. "Indie game, 2024"]</p>
-        <p class="project-desc">[One or two sentences on the brief and your contribution.]</p>
         <div class="player" data-player>
           <audio data-audio preload="metadata" src="audio/PIANOSHIT_7.mp3"></audio>
           <canvas data-wave width="600" height="48"></canvas>
@@ -722,8 +733,6 @@
           <h3>K4</h3>
           <span class="project-role">Production</span>
         </div>
-        <p class="project-client">[Client / context]</p>
-        <p class="project-desc">[Short description of the piece and the role you played.]</p>
         <div class="player" data-player>
           <audio data-audio preload="metadata" src="audio/K4.mp3"></audio>
           <canvas data-wave width="600" height="48"></canvas>
@@ -783,25 +792,25 @@
         <span class="num">01</span>
         <h3>Original Composition</h3>
         <p>Custom scoring for games, film, and trailers — from sketch to final mix, written to picture or to brief.</p>
-        <p class="service-tier">From [€XXX] / track</p>
+        <p class="service-tier">Case by case</p>
       </div>
       <div class="service-card fade-in">
         <span class="num">02</span>
         <h3>Sound Design</h3>
         <p>Foley, UI sound, ambiences, and weapon/vehicle/creature design built from source recording and synthesis.</p>
-        <p class="service-tier">From [€XXX] / asset pack</p>
+        <p class="service-tier">Case by case</p>
       </div>
       <div class="service-card fade-in">
         <span class="num">03</span>
         <h3>Adaptive Music Systems</h3>
         <p>Layered, stinger-based, or generative music systems designed around gameplay states.</p>
-        <p class="service-tier">Request a quote</p>
+        <p class="service-tier">Case by case</p>
       </div>
       <div class="service-card fade-in">
         <span class="num">04</span>
         <h3>Consulting</h3>
         <p>Audio pipeline review, plugin/template setup, or a second pair of ears on an in-progress mix.</p>
-        <p class="service-tier">[€XX] / hour</p>
+        <p class="service-tier">Case by case</p>
       </div>
     </div>
   </div>
@@ -837,9 +846,7 @@
           <!-- TODO: add social/streaming links if you'd like to include them -->
           <li><a href="mailto:andrearainieri3@gmail.com">andrearainieri3@gmail.com</a></li>
           <li><a href="https://open.spotify.com/" target="_blank" rel="noopener">Spotify</a></li>
-          <li><a href="https://soundcloud.com/" target="_blank" rel="noopener">SoundCloud</a></li>
-          <li><a href="https://bandcamp.com/" target="_blank" rel="noopener">Bandcamp</a></li>
-          <li><a href="https://instagram.com/" target="_blank" rel="noopener">Instagram</a></li>
+          <li><a href="https://instagram.com/andy.xvii" target="_blank" rel="noopener">@andy.xvii</a></li>
         </ul>
       </div>
 
@@ -894,22 +901,6 @@ document.getElementById('year').textContent = new Date().getFullYear();
     });
   }, { threshold: 0.15 });
   targets.forEach(t => io.observe(t));
-})();
-
-// ---------- Signature motif: frequency-bar dividers ----------
-// Renders a row of bars with randomized (but stable) heights.
-// Used between Hero and About. Add more <div class="freq-divider">
-// elsewhere in the markup if you want the motif to repeat.
-(function(){
-  document.querySelectorAll('.freq-divider').forEach(el => {
-    const barCount = 80;
-    for(let i=0;i<barCount;i++){
-      const bar = document.createElement('span');
-      const h = 15 + Math.round(Math.random()*85);
-      bar.style.height = h + '%';
-      el.appendChild(bar);
-    }
-  });
 })();
 
 // ---------- Hero canvas: ambient generative frequency bars ----------
